@@ -1,5 +1,6 @@
 package com.down.viewpagerdotindicator;
 
+import android.os.Handler;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, View.OnClickListener{
 
     protected View view;
@@ -20,6 +24,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     private int dotsCount;
     private ImageView[] dots;
     private ViewPagerAdapter mAdapter;
+    int currentPage = 0;
+    Timer timer;
+    final long DELAY_MS = 500;//delay in milliseconds before task is to be executed
+    final long PERIOD_MS = 3000;
 
     private int[] mImageResources = {
             R.mipmap.ic_launcher,
@@ -60,6 +68,24 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
         mAdapter = new ViewPagerAdapter(getApplicationContext(), mImageResources);
         intro_images.setAdapter(mAdapter);
+        final Handler handler = new Handler();
+        final Runnable Update = new Runnable() {
+            public void run() {
+                if (currentPage == 5-1) {
+                    currentPage = 0;
+                }
+                intro_images.setCurrentItem(currentPage++, true);
+            }
+        };
+
+        timer = new Timer(); // This will create a new Thread
+        timer .schedule(new TimerTask() { // task to be scheduled
+
+            @Override
+            public void run() {
+                handler.post(Update);
+            }
+        }, DELAY_MS, PERIOD_MS);
         intro_images.setCurrentItem(0);
         intro_images.setOnPageChangeListener(this);
         setUiPageViewController();
